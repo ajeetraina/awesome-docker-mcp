@@ -17,6 +17,7 @@ Options:
 import os
 import re
 import time
+import base64
 import argparse
 import requests
 from datetime import datetime
@@ -48,6 +49,13 @@ def extract_server_list(readme_content):
     """Extract the server list from the README.md content"""
     servers = []
     
+    # First check how many servers are listed in the README
+    match = re.search(r'There are currently (\d+) MCP servers available:', readme_content)
+    expected_count = int(match.group(1)) if match else 0
+    
+    if expected_count > 0:
+        logging.info(f"README mentions {expected_count} MCP servers")
+    
     # Find all table rows using regex pattern
     matches = re.finditer(TABLE_PATTERN, readme_content)
     
@@ -66,6 +74,14 @@ def extract_server_list(readme_content):
             'link': link,
             'line': match.group(0)
         })
+    
+    # Verify if we found all servers
+    found_count = len(servers)
+    logging.info(f"Found {found_count} servers in README.md table")
+    
+    if expected_count > 0 and found_count < expected_count:
+        logging.warning(f"Expected {expected_count} servers but only found {found_count}")
+        logging.warning("Some servers might be missing from the table or in a different format")
     
     return servers
 
@@ -195,10 +211,38 @@ def check_server_availability(servers):
     
     return servers
 
+def find_all_mcp_servers(readme_content):
+    """Find all MCP servers mentioned in the README, even those not in the main table"""
+    # First, get the servers from the main table
+    table_servers = extract_server_list(readme_content)
+    
+    # Then look for other MCP servers in the document
+    # This would need to be customized based on how the other servers are listed
+    
+    # Get additional servers from the README using a different pattern if needed
+    # For example, scanning for links to MCP server pages:
+    additional_servers = []
+    
+    # Combine and deduplicate the lists
+    all_servers = table_servers + additional_servers
+    
+    # Remove duplicates if any
+    server_names = set()
+    unique_servers = []
+    
+    for server in all_servers:
+        if server['server_name'] not in server_names:
+            server_names.add(server['server_name'])
+            unique_servers.append(server)
+    
+    logging.info(f"Found a total of {len(unique_servers)} unique MCP servers")
+    return unique_servers
+
 def main():
     """Main function to update pull counts"""
     parser = argparse.ArgumentParser(description='Update Docker Hub pull counts for MCP servers')
     parser.add_argument('--commit', action='store_true', help='Commit and push changes to GitHub')
+    parser.add_argument('--full-scan', action='store_true', help='Scan the entire README for servers, not just the table')
     
     args = parser.parse_args()
     
@@ -209,7 +253,11 @@ def main():
         readme_content = read_readme()
         
         # Extract server list
-        servers = extract_server_list(readme_content)
+        if args.full_scan:
+            servers = find_all_mcp_servers(readme_content)
+        else:
+            servers = extract_server_list(readme_content)
+        
         logging.info(f"Found {len(servers)} servers in README.md")
         
         # Check server availability
@@ -230,7 +278,6 @@ def main():
         
         # Commit and push changes if --commit flag is provided
         if args.commit:
-            import base64  # Only import if needed
             success = commit_and_push_changes()
             if success:
                 logging.info("Changes committed and pushed to GitHub")

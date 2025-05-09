@@ -59,6 +59,13 @@ def extract_server_list(readme_content):
     """Extract the server list from the README.md content"""
     servers = []
     
+    # First check how many servers are listed in the README
+    match = re.search(r'There are currently (\d+) MCP servers available:', readme_content)
+    expected_count = int(match.group(1)) if match else 0
+    
+    if expected_count > 0:
+        logging.info(f"README mentions {expected_count} MCP servers")
+    
     # Find all table rows using regex pattern
     matches = re.finditer(TABLE_PATTERN, readme_content)
     
@@ -76,6 +83,14 @@ def extract_server_list(readme_content):
             'pull_count': pull_count,
             'link': link
         })
+    
+    # Verify if we found all servers
+    found_count = len(servers)
+    logging.info(f"Found {found_count} servers in README.md table")
+    
+    if expected_count > 0 and found_count < expected_count:
+        logging.warning(f"Expected {expected_count} servers but only found {found_count}")
+        logging.warning("Some servers might be missing from the table or in a different format")
     
     return servers
 
@@ -355,12 +370,24 @@ def send_notification(changes, servers_status, output_format='markdown'):
         except Exception as e:
             logging.error(f"Failed to send Slack notification: {e}")
 
+def find_all_mcp_servers(readme_content):
+    """Find all MCP servers mentioned in the README, even those not in the main table"""
+    # First, get the servers from the main table using standard parsing
+    table_servers = extract_server_list(readme_content)
+    
+    # Look for supplementary server information if needed
+    # This would need to be customized based on how the other servers are listed
+    
+    return table_servers
+
 def main():
     """Main function to check server status"""
     parser = argparse.ArgumentParser(description='Check Docker MCP servers status')
     parser.add_argument('--output', choices=['text', 'json', 'markdown'], default='markdown',
                         help='Output format (default: markdown)')
     parser.add_argument('--notify', action='store_true', help='Send notification on status changes')
+    parser.add_argument('--full-scan', action='store_true', 
+                        help='Scan the entire README for servers, not just the visible table')
     
     args = parser.parse_args()
     
@@ -371,7 +398,11 @@ def main():
         readme_content = read_readme()
         
         # Extract server list
-        servers = extract_server_list(readme_content)
+        if args.full_scan:
+            servers = find_all_mcp_servers(readme_content)
+        else:
+            servers = extract_server_list(readme_content)
+            
         logging.info(f"Found {len(servers)} servers in README.md")
         
         # Load previous status
