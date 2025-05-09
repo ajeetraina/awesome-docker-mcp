@@ -1,0 +1,55 @@
+name: Check MCP Servers
+
+on:
+  schedule:
+    # Run every 6 hours
+    - cron: '0 */6 * * *'
+  # Allow manual triggering
+  workflow_dispatch:
+
+jobs:
+  check-servers:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests tabulate markdown
+      
+      - name: Check MCP servers
+        run: python check_mcp_servers.py --output markdown
+      
+      - name: Create report file
+        run: python check_mcp_servers.py --output markdown > server_report.md
+      
+      - name: Upload report artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: server-status-report
+          path: server_report.md
+      
+      - name: Check for status file changes
+        id: git-check
+        run: |
+          git status --porcelain
+          echo "::set-output name=modified::$(if git status --porcelain | grep -q 'server_status.json'; then echo 'true'; else echo 'false'; fi)"
+      
+      - name: Commit and push server status
+        if: steps.git-check.outputs.modified == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add server_status.json
+          git commit -m "Update server status - $(date +'%Y-%m-%d %H:%M:%S')"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
