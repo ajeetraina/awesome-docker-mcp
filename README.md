@@ -1,4 +1,12 @@
-# A Curated List of Docker MCP Server
+# A Curated List of Docker MCP Servers
+
+[![Awesome](https://awesome.re/badge.svg)](https://awesome.re)
+[![GitHub stars](https://img.shields.io/github/stars/ajeetraina/awesome-docker-mcp-servers.svg)](https://github.com/ajeetraina/awesome-docker-mcp-servers/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/ajeetraina/awesome-docker-mcp-servers.svg)](https://github.com/ajeetraina/awesome-docker-mcp-servers/network)
+[![GitHub issues](https://img.shields.io/github/issues/ajeetraina/awesome-docker-mcp-servers.svg)](https://github.com/ajeetraina/awesome-docker-mcp-servers/issues)
+[![GitHub license](https://img.shields.io/github/license/ajeetraina/awesome-docker-mcp-servers.svg)](https://github.com/ajeetraina/awesome-docker-mcp-servers/blob/main/LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/ajeetraina/awesome-docker-mcp-servers/pulls)
+[![Docker MCP](https://img.shields.io/badge/Docker-MCP-blue)](https://www.docker.com/)
 
 A comprehensive curated list of MCP Server and Clients supported by Docker Inc and included in the new Docker MCP Toolkit Extension.
 
@@ -69,7 +77,7 @@ There are currently 109 MCP servers available:
 | 59 | line | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/line.md) |
 | 60 | mcp-discord | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/mcp-discord.md) |
 | 61 | mcp-notion-server | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/mcp-notion-server.md) |
-| 62 | multiversx-mx | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/multiversx-mx.md) |
+| 62 | multiverx-mx | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/multiversx-mx.md) |
 | 63 | neo4j-cloud-aura-api | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/neo4j-cloud-aura-api.md) |
 | 64 | neo4j-cypher | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/neo4j-cypher.md) |
 | 65 | neo4j-memory | [GitHub](https://github.com/docker/labs-ai-tools-for-devs/blob/main/prompts/mcp/neo4j-memory.md) |
